@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product – AromaLuxe</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="container py-5" id="productDetail"></div>
+
+<div class="container py-4">
+  <h4 class="section-title">Customer Reviews</h4>
+  <div id="reviewList" class="mb-4"></div>
+  <form id="reviewForm" class="filter-card">
+    <h6 class="fw-bold mb-3">Write a Review</h6>
+    <div class="row g-2">
+      <div class="col-md-4"><input class="form-control" id="revName" placeholder="Your name" required></div>
+      <div class="col-md-3">
+        <select class="form-select" id="revRating">
+          <option value="5">★★★★★ (5)</option>
+          <option value="4">★★★★☆ (4)</option>
+          <option value="3">★★★☆☆ (3)</option>
+          <option value="2">★★☆☆☆ (2)</option>
+          <option value="1">★☆☆☆☆ (1)</option>
+        </select>
+      </div>
+      <div class="col-md-5"><input class="form-control" id="revComment" placeholder="Your comment" required></div>
+    </div>
+    <button class="btn btn-gold mt-3" type="submit">Submit Review</button>
+  </form>
+</div>
+
+<div class="container py-4">
+  <h4 class="section-title">You May Also Like</h4>
+  <div class="row g-4" id="relatedGrid"></div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+const pid = new URLSearchParams(location.search).get("id");
+
+function renderProduct() {
+  const p = getProduct(pid);
+  if (!p) { document.getElementById("productDetail").innerHTML = "<p>Product not found.</p>"; return; }
+
+  document.getElementById("productDetail").innerHTML = `
+    <div class="row g-5 align-items-center">
+      <div class="col-md-5">${bottleSwatch(p, 320).replace('height: 220px', 'height: 340px')}</div>
+      <div class="col-md-7">
+        <span class="badge badge-cat mb-2">${p.category} · ${p.family}</span>
+        <h2>${p.name}</h2>
+        <div class="star-rating mb-2">${starString(avgRating(p.id)) || "☆☆☆☆☆"} <span class="text-muted small">(${getReviews(p.id).length} reviews)</span></div>
+        <div class="price-tag fs-3 mb-3">$${p.price}</div>
+        <p>${p.desc}</p>
+        <p class="text-muted"><strong>Notes:</strong> ${p.notes}</p>
+        <div class="d-flex gap-2 mt-4">
+          <input type="number" min="1" value="1" id="qtyInput" class="form-control" style="width:90px">
+          <button class="btn btn-gold px-4" id="addCartBtn">Add to Cart</button>
+          <button class="btn btn-outline-gold px-4" id="wishBtn">${isWishlisted(p.id) ? "♥ Wishlisted" : "♡ Wishlist"}</button>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById("addCartBtn").addEventListener("click", () => {
+    addToCart(p.id, parseInt(document.getElementById("qtyInput").value) || 1);
+    document.getElementById("cartBadge").textContent = cartCount();
+    alert("Added to cart!");
+  });
+  document.getElementById("wishBtn").addEventListener("click", (e) => {
+    const active = toggleWishlist(p.id);
+    e.target.textContent = active ? "♥ Wishlisted" : "♡ Wishlist";
+  });
+}
+
+function renderReviews() {
+  const reviews = getReviews(pid);
+  const list = document.getElementById("reviewList");
+  list.innerHTML = reviews.length ? reviews.map(r => `
+    <div class="border-bottom py-2">
+      <div class="d-flex justify-content-between">
+        <strong>${r.name}</strong><span class="star-rating">${starString(r.rating)}</span>
+      </div>
+      <p class="mb-1">${r.comment}</p>
+      <small class="text-muted">${r.date}</small>
+    </div>`).join("") : `<p class="text-muted">No reviews yet. Be the first!</p>`;
+}
+
+function renderRelated() {
+  const p = getProduct(pid);
+  const related = getProducts().filter(x => x.category === p.category && x.id !== p.id).slice(0, 4);
+  document.getElementById("relatedGrid").innerHTML = related.map(r => `
+    <div class="col-sm-6 col-md-3">
+      <a href="product.html?id=${r.id}" class="text-decoration-none text-dark">
+        <div class="product-card">${bottleSwatch(r)}
+          <div class="p-3"><h6 class="mb-1">${r.name}</h6><div class="price-tag">$${r.price}</div></div>
+        </div>
+      </a>
+    </div>`).join("");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderProduct(); renderReviews(); renderRelated();
+  document.getElementById("reviewForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    addReview(pid, document.getElementById("revName").value, document.getElementById("revRating").value, document.getElementById("revComment").value);
+    e.target.reset();
+    renderReviews(); renderProduct();
+  });
+});
+</script>
+</body>
+</html>

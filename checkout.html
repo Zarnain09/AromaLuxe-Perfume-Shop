@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout – AromaLuxe</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="container py-5">
+  <h2 class="section-title">Checkout</h2>
+  <div id="checkoutArea"></div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+function renderCheckout() {
+  const cart = getCart();
+  const area = document.getElementById("checkoutArea");
+  if (!cart.length) { area.innerHTML = `<p class="text-muted">Your cart is empty. <a href="shop.html">Browse perfumes</a>.</p>`; return; }
+
+  const summary = cart.map(c => {
+    const p = getProduct(c.id);
+    return `<div class="d-flex justify-content-between small mb-1"><span>${p.name} × ${c.qty}</span><span>$${(p.price*c.qty).toFixed(2)}</span></div>`;
+  }).join("");
+
+  area.innerHTML = `
+  <div class="row g-5">
+    <div class="col-md-7">
+      <form id="checkoutForm" class="filter-card">
+        <h6 class="fw-bold mb-3">Shipping Details</h6>
+        <div class="row g-3">
+          <div class="col-md-6"><input class="form-control" id="fullName" placeholder="Full Name" required></div>
+          <div class="col-md-6"><input class="form-control" id="email" type="email" placeholder="Email" required></div>
+          <div class="col-12"><input class="form-control" id="address" placeholder="Address" required></div>
+          <div class="col-md-6"><input class="form-control" id="city" placeholder="City" required></div>
+          <div class="col-md-6"><input class="form-control" id="zip" placeholder="ZIP / Postal Code" required></div>
+        </div>
+        <h6 class="fw-bold mt-4 mb-2">Payment (Simulated)</h6>
+        <input class="form-control mb-2" placeholder="Card Number" value="4111 1111 1111 1111" required>
+        <div class="row g-2">
+          <div class="col-6"><input class="form-control" placeholder="MM/YY" value="12/29" required></div>
+          <div class="col-6"><input class="form-control" placeholder="CVV" value="123" required></div>
+        </div>
+        <button class="btn btn-gold w-100 mt-4" type="submit">Place Order</button>
+      </form>
+    </div>
+    <div class="col-md-5">
+      <div class="filter-card">
+        <h6 class="fw-bold mb-3">Order Summary</h6>
+        ${summary}
+        <hr>
+        <div class="d-flex justify-content-between"><strong>Total</strong><strong class="price-tag">$${cartTotal().toFixed(2)}</strong></div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById("checkoutForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const shipping = {
+      name: document.getElementById("fullName").value,
+      email: document.getElementById("email").value,
+      address: document.getElementById("address").value,
+      city: document.getElementById("city").value,
+      zip: document.getElementById("zip").value,
+    };
+    const order = placeOrder(shipping);
+    area.innerHTML = `
+      <div class="text-center py-5">
+        <h3 class="mb-3">🎉 Order Confirmed!</h3>
+        <p>Thank you, ${shipping.name}. Your order <strong>${order.id}</strong> has been placed.</p>
+        <p class="price-tag fs-4">Total: $${order.total.toFixed(2)}</p>
+        <a href="shop.html" class="btn btn-gold mt-3">Continue Shopping</a>
+      </div>`;
+    document.getElementById("cartBadge").textContent = cartCount();
+  });
+}
+document.addEventListener("DOMContentLoaded", renderCheckout);
+</script>
+</body>
+</html>

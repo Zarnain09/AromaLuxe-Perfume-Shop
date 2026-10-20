@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AromaLuxe – Signature Perfumes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<section class="hero text-center">
+  <div class="container">
+    <h1>AromaLuxe</h1>
+    <p class="lead">Signature fragrances for every story — discover perfumes crafted to be remembered.</p>
+    <a href="shop.html" class="btn btn-gold btn-lg mt-3 px-4">Shop the Collection</a>
+  </div>
+</section>
+
+<section class="container py-5">
+  <h2 class="section-title">Bestsellers</h2>
+  <div class="row g-4" id="bestsellers"></div>
+</section>
+
+<section class="container py-5">
+  <h2 class="section-title">Shop by Category</h2>
+  <div class="row g-4">
+    <div class="col-md-4"><a href="shop.html?cat=Men" class="text-decoration-none text-dark">
+      <div class="filter-card text-center"><h4>Men</h4><p class="text-muted mb-0">Bold, woody & spicy scents</p></div></a></div>
+    <div class="col-md-4"><a href="shop.html?cat=Women" class="text-decoration-none text-dark">
+      <div class="filter-card text-center"><h4>Women</h4><p class="text-muted mb-0">Floral & gourmand elegance</p></div></a></div>
+    <div class="col-md-4"><a href="shop.html?cat=Unisex" class="text-decoration-none text-dark">
+      <div class="filter-card text-center"><h4>Unisex</h4><p class="text-muted mb-0">Fresh & versatile fragrances</p></div></a></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const products = getProducts().slice(0, 4);
+  document.getElementById("bestsellers").innerHTML = products.map(p => `
+    <div class="col-6 col-md-3">
+      <div class="product-card position-relative">
+        <a href="product.html?id=${p.id}" class="text-decoration-none text-dark">
+          ${bottleSwatch(p)}
+          <div class="p-3">
+            <span class="badge badge-cat mb-2">${p.category}</span>
+            <h6 class="mb-1">${p.name}</h6>
+            <div class="price-tag">$${p.price}</div>
+          </div>
+        </a>
+      </div>
+    </div>`).join("");
+});
+</script>
+</body>
+</html>

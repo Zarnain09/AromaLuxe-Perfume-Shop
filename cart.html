@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart – AromaLuxe</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="container py-5">
+  <h2 class="section-title">Your Cart</h2>
+  <div id="cartContent"></div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+function renderCart() {
+  const cart = getCart();
+  const el = document.getElementById("cartContent");
+  if (!cart.length) {
+    el.innerHTML = `<p class="text-muted">Your cart is empty. <a href="shop.html">Browse perfumes</a>.</p>`;
+    return;
+  }
+  const rows = cart.map(c => {
+    const p = getProduct(c.id);
+    if (!p) return "";
+    return `
+    <tr>
+      <td class="d-flex align-items-center gap-3">
+        <div style="width:60px;height:60px;border-radius:8px;background:linear-gradient(160deg, ${p.color1}, ${p.color2})"></div>
+        <div><strong>${p.name}</strong><br><span class="text-muted small">${p.category}</span></div>
+      </td>
+      <td>$${p.price}</td>
+      <td><input type="number" min="1" value="${c.qty}" class="form-control qty-input" data-id="${c.id}" style="width:80px"></td>
+      <td>$${(p.price * c.qty).toFixed(2)}</td>
+      <td><button class="btn btn-sm btn-outline-danger remove-btn" data-id="${c.id}">Remove</button></td>
+    </tr>`;
+  }).join("");
+
+  el.innerHTML = `
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>Product</th><th>Price</th><th>Qty</th><th>Subtotal</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+  <div class="d-flex justify-content-end">
+    <div class="filter-card" style="min-width:300px">
+      <div class="d-flex justify-content-between mb-2"><span>Total</span><strong class="price-tag">$${cartTotal().toFixed(2)}</strong></div>
+      <a href="checkout.html" class="btn btn-gold w-100">Proceed to Checkout</a>
+    </div>
+  </div>`;
+
+  el.querySelectorAll(".qty-input").forEach(inp => inp.addEventListener("change", (e) => {
+    updateCartQty(e.target.dataset.id, parseInt(e.target.value) || 0);
+    renderCart();
+    document.getElementById("cartBadge").textContent = cartCount();
+  }));
+  el.querySelectorAll(".remove-btn").forEach(btn => btn.addEventListener("click", (e) => {
+    removeFromCart(e.target.dataset.id);
+    renderCart();
+    document.getElementById("cartBadge").textContent = cartCount();
+  }));
+}
+document.addEventListener("DOMContentLoaded", renderCart);
+</script>
+</body>
+</html>

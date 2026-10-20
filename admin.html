@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel – AromaLuxe</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="container py-5" id="adminArea"></div>
+
+<div id="site-footer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+function renderAdmin() {
+  const area = document.getElementById("adminArea");
+  const user = getCurrentUser();
+  if (!user || !user.isAdmin) {
+    area.innerHTML = `<p class="text-danger">Access denied. Please log in as an admin.</p><a href="login.html" class="btn btn-gold">Go to Login</a>`;
+    return;
+  }
+
+  area.innerHTML = `
+    <h2 class="section-title">Admin Panel</h2>
+    <div class="row g-4">
+      <div class="col-md-5">
+        <div class="filter-card">
+          <h6 class="fw-bold mb-3">Add New Product</h6>
+          <form id="addProductForm">
+            <input class="form-control mb-2" id="pName" placeholder="Name" required>
+            <select class="form-select mb-2" id="pCategory" required>
+              <option value="Men">Men</option><option value="Women">Women</option><option value="Unisex">Unisex</option>
+            </select>
+            <input class="form-control mb-2" id="pFamily" placeholder="Scent Family (e.g. Woody)" required>
+            <input class="form-control mb-2" id="pPrice" type="number" placeholder="Price" required>
+            <input class="form-control mb-2" id="pNotes" placeholder="Notes (comma separated)" required>
+            <textarea class="form-control mb-2" id="pDesc" placeholder="Description" required></textarea>
+            <button class="btn btn-gold w-100" type="submit">Add Product</button>
+          </form>
+        </div>
+      </div>
+      <div class="col-md-7">
+        <h6 class="fw-bold mb-3">Manage Products</h6>
+        <div class="table-responsive">
+          <table class="table admin-table align-middle">
+            <thead><tr><th>Name</th><th>Category</th><th>Price</th><th></th></tr></thead>
+            <tbody id="productRows"></tbody>
+          </table>
+        </div>
+        <h6 class="fw-bold mt-4 mb-2">Recent Orders (${getOrdersCount()})</h6>
+        <div id="orderList" class="small"></div>
+      </div>
+    </div>`;
+
+  renderProductRows();
+  renderOrders();
+
+  document.getElementById("addProductForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    addProduct({
+      name: document.getElementById("pName").value,
+      category: document.getElementById("pCategory").value,
+      family: document.getElementById("pFamily").value,
+      price: parseFloat(document.getElementById("pPrice").value),
+      notes: document.getElementById("pNotes").value,
+      desc: document.getElementById("pDesc").value,
+      color1: "#3b2a1a", color2: "#c9a24b",
+    });
+    e.target.reset();
+    renderProductRows();
+  });
+}
+
+function getOrdersCount() {
+  return (JSON.parse(localStorage.getItem("al_orders")) || []).length;
+}
+
+function renderProductRows() {
+  const rows = document.getElementById("productRows");
+  rows.innerHTML = getProducts().map(p => `
+    <tr>
+      <td>${p.name}</td><td>${p.category}</td><td>$${p.price}</td>
+      <td><button class="btn btn-sm btn-outline-danger del-btn" data-id="${p.id}">Delete</button></td>
+    </tr>`).join("");
+  rows.querySelectorAll(".del-btn").forEach(btn => btn.addEventListener("click", () => {
+    if (confirm("Delete this product?")) { deleteProduct(btn.dataset.id); renderProductRows(); }
+  }));
+}
+
+function renderOrders() {
+  const orders = JSON.parse(localStorage.getItem("al_orders")) || [];
+  const el = document.getElementById("orderList");
+  el.innerHTML = orders.length ? orders.slice().reverse().map(o => `
+    <div class="border-bottom py-2">
+      <strong>${o.id}</strong> — ${o.shipping.name} — $${o.total.toFixed(2)} <span class="text-muted">(${o.date})</span>
+    </div>`).join("") : `<p class="text-muted">No orders yet.</p>`;
+}
+
+document.addEventListener("DOMContentLoaded", renderAdmin);
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact – AromaLuxe</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="container py-5" style="max-width:600px">
+  <h2 class="section-title">Contact Us</h2>
+  <form id="contactForm" class="filter-card">
+    <input class="form-control mb-3" id="cName" placeholder="Your Name" required>
+    <input class="form-control mb-3" type="email" id="cEmail" placeholder="Your Email" required>
+    <textarea class="form-control mb-3" id="cMessage" rows="4" placeholder="Your Message" required></textarea>
+    <button class="btn btn-gold w-100" type="submit">Send Message</button>
+    <div id="contactMsg" class="text-success small mt-2"></div>
+  </form>
+</div>
+
+<div id="site-footer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("contactForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    submitContactMessage(document.getElementById("cName").value, document.getElementById("cEmail").value, document.getElementById("cMessage").value);
+    document.getElementById("contactMsg").textContent = "Thank you! Your message has been received.";
+    e.target.reset();
+  });
+});
+</script>
+</body>
+</html>

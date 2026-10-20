@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login – AromaLuxe</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="container py-5" style="max-width:480px">
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#loginTab">Login</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#signupTab">Sign Up</button></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="loginTab">
+      <form id="loginForm" class="filter-card">
+        <input class="form-control mb-3" type="email" id="loginEmail" placeholder="Email" required>
+        <input class="form-control mb-3" type="password" id="loginPassword" placeholder="Password" required>
+        <button class="btn btn-gold w-100" type="submit">Login</button>
+        <div class="small text-muted mt-2">Admin demo: admin@aromaluxe.com / admin123</div>
+        <div id="loginMsg" class="text-danger small mt-2"></div>
+      </form>
+    </div>
+    <div class="tab-pane fade" id="signupTab">
+      <form id="signupForm" class="filter-card">
+        <input class="form-control mb-3" id="suName" placeholder="Full Name" required>
+        <input class="form-control mb-3" type="email" id="suEmail" placeholder="Email" required>
+        <input class="form-control mb-3" type="password" id="suPassword" placeholder="Password" required>
+        <button class="btn btn-gold w-100" type="submit">Create Account</button>
+        <div id="signupMsg" class="text-danger small mt-2"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const next = new URLSearchParams(location.search).get("next") || "index.html";
+
+  document.getElementById("loginForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const res = loginUser(document.getElementById("loginEmail").value, document.getElementById("loginPassword").value);
+    if (res.ok) { location.href = res.user.isAdmin ? "admin.html" : next; }
+    else document.getElementById("loginMsg").textContent = res.msg;
+  });
+
+  document.getElementById("signupForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const res = registerUser(document.getElementById("suName").value, document.getElementById("suEmail").value, document.getElementById("suPassword").value);
+    if (res.ok) {
+      loginUser(document.getElementById("suEmail").value, document.getElementById("suPassword").value);
+      location.href = next;
+    } else document.getElementById("signupMsg").textContent = res.msg;
+  });
+});
+</script>
+</body>
+</html>
